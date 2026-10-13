@@ -110,10 +110,17 @@
 <body class="min-h-screen bg-ground text-fg">
   <main class="mx-auto flex max-w-md flex-col gap-6 px-4 pt-4" style="padding-bottom: calc(2.5rem + env(safe-area-inset-bottom))">
 
-    <!-- Shown only on the staging demo (?demo=1). -->
-    <section id="demo-banner" hidden class="card flex flex-col gap-1 border-accent/40">
-      <h2 class="text-body font-semibold">Staging demo</h2>
-      <p class="text-small text-muted">Sample links showing what LINK CHECK catches. Tap one to check it.</p>
+    <!-- 1. The app mark and name. -->
+    <header class="flex items-center gap-3">
+      <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-accent text-on-accent" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      </span>
+      <h1 class="text-title">Link Check</h1>
+    </header>
+
+    <!-- 2. Shown only on the staging demo (?demo=1): one quiet line. -->
+    <section id="demo-banner" hidden class="flex h-10 items-center rounded-lg bg-raised px-4">
+      <p class="text-small text-muted">Staging demo</p>
     </section>
 
     <form id="link-form" novalidate class="flex flex-col gap-2">
@@ -123,13 +130,15 @@
                spellcheck="false" enterkeyhint="go" class="field flex-1 font-mono text-small"
                placeholder="e.g. https://example.com/sale" aria-describedby="input-error">
         <button id="check-btn" type="submit" class="btn-primary">Check</button>
+        <button id="clear-btn" type="button" class="btn-secondary" hidden>Clear</button>
       </div>
       <p id="input-error" hidden class="text-small text-warning" role="alert"></p>
+      <p class="text-small text-muted">Checked on this device. The link is never opened or sent.</p>
     </form>
 
     <!-- Nothing checked yet: what this app does, in plain words. -->
     <section id="empty-state" class="flex flex-col gap-2">
-      <h1 class="text-heading">Paste a link to check it</h1>
+      <h2 class="text-heading">Paste a link to check it</h2>
       <p class="text-body text-muted">LINK CHECK reads the link as written and shows where it really goes. It never opens the link.</p>
       <h2 class="section-label">What it looks at</h2>
       <ul class="list">
@@ -169,7 +178,6 @@
       <div class="flex flex-col gap-3">
         <div class="flex flex-wrap gap-2">
           <button id="copy-btn" type="button" class="btn-secondary">Copy results</button>
-          <button id="clear-btn" type="button" class="btn-secondary">Clear</button>
         </div>
         <p id="copy-note" hidden class="text-small text-muted" role="status"></p>
         <p class="text-small text-muted">This check only reads how the link is written. It is a pointer, not a guarantee: a link with no warning signs can still lead somewhere harmful.</p>

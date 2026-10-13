@@ -160,10 +160,13 @@
   .verdict-clear {
     @apply border-clear/35 bg-clear-soft;
   }
-  /* The banner takes focus when a result appears; keep the ring on-brand. */
-  .verdict:focus {
-    outline: 2px solid rgb(var(--focus) / 1);
-    outline-offset: 2px;
+  /* The banner takes focus when a result appears. That focus is programmatic
+     (tabindex="-1"), so it draws no ring — a blue ring around the red banner
+     read as a selected state. The banner is never in tab order, so no
+     keyboard focus ring is lost by this. */
+  .verdict:focus,
+  .verdict:focus-visible {
+    outline: none;
   }
 
   /* The link x-ray: the pasted link rendered one labelled part at a time,

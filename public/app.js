@@ -67,6 +67,11 @@
 
   var currentResult = null;
 
+  /* Clear sits beside Check once there is something to clear: text or a result. */
+  function updateClear() {
+    $clearBtn.hidden = !$input.value && !currentResult;
+  }
+
   /* ── The input's error lines, one per analyse() failure. ── */
   var ERROR_TEXT = {
     empty: 'Paste a link first.',
@@ -92,6 +97,12 @@
     var res = api.analyze(raw);
     if (!res.ok) {
       setInputError(res.error === 'unsupported' ? unsupportedText(res.scheme) : ERROR_TEXT[res.error]);
+      // The old answer comes down: the screen shows the field, the error and
+      // the explainer, never a result it is no longer about.
+      currentResult = null;
+      hide($result);
+      show($empty);
+      updateClear();
       $input.focus();
       return;
     }
@@ -101,9 +112,16 @@
   }
 
   /* ── Rendering. ── */
-  function levelIcon(level) {
+  function levelIcon(level, size) {
     var holder = el('span', LEVEL_TEXT[level] || '');
     holder.innerHTML = ICONS[level] || ICONS.clear; // built-in markup only, never link text
+    if (size && holder.firstChild) {
+      holder.firstChild.removeAttribute('width');
+      holder.firstChild.removeAttribute('height');
+      holder.firstChild.style.width = size + 'px';
+      holder.firstChild.style.height = size + 'px';
+      holder.classList.add('shrink-0');
+    }
     return holder;
   }
 
@@ -129,6 +147,7 @@
     renderParts(res);
     renderFindings(res);
     hide($copyNote);
+    updateClear();
 
     // Announce and move attention to the answer.
     $verdict.focus();
@@ -151,22 +170,41 @@
     $xray.classList.add('flex', 'flex-wrap', 'gap-x-3', 'gap-y-3');
   }
 
-  /* The link's parts, one row each: name, what it says, what it means. */
+  /* The link's parts, one row each: name, what it says, what it means.
+     A part a warning is about takes that warning's colour, dot and shape;
+     the domain, when nothing points at it, keeps the accent it wears in the
+     x-ray above — one colour per part. */
+  var DOT_CLASS = { warning: 'bg-warning', caution: 'bg-caution', clear: 'bg-clear' };
+
+  function partNameClass(part) {
+    // Whole literals, for the extractor:
+    if (part.level === 'warning') return 'w-22 shrink-0 text-small font-medium text-warning';
+    if (part.level === 'caution') return 'w-22 shrink-0 text-small font-medium text-caution';
+    if (part.level === 'clear') return 'w-22 shrink-0 text-small font-medium text-clear';
+    if (part.key === 'domain') return 'w-22 shrink-0 text-small font-medium text-accent';
+    return 'w-22 shrink-0 text-small font-medium text-muted';
+  }
+
   function renderParts(res) {
     $parts.replaceChildren();
     res.parts.forEach(function (part) {
       var row = el('li', 'list-row items-start');
 
-      var name = el('span', 'w-22 shrink-0 text-small font-medium ' +
-        (part.level && LEVEL_TEXT[part.level] ? LEVEL_TEXT[part.level] : 'text-muted'), part.label);
-      // Whole literals again, for the extractor:
-      if (part.level === 'warning') name.className = 'w-22 shrink-0 text-small font-medium text-warning';
-      else if (part.level === 'caution') name.className = 'w-22 shrink-0 text-small font-medium text-caution';
-      else name.className = 'w-22 shrink-0 text-small font-medium text-muted';
+      var name = el('span', partNameClass(part) + (part.level ? ' flex items-center gap-1' : ''));
+      if (part.level) name.append(levelIcon(part.level, 14));
+      name.append(document.createTextNode(part.label));
 
       var body = el('span', 'flex min-w-0 flex-1 flex-col gap-0.5');
-      var value = el('span', 'font-mono text-small text-fg', part.value);
+      var value = el('span', 'font-mono text-small text-fg');
       value.style.overflowWrap = 'anywhere';
+      // A coloured dot on the real domain and on any flagged part.
+      if (part.key === 'domain' || part.level) {
+        var dot = el('span', 'mr-1.5 inline-block h-2 w-2 rounded-full align-middle ' +
+          (part.level ? DOT_CLASS[part.level] : 'bg-accent'));
+        value.append(dot, document.createTextNode(part.value));
+      } else {
+        value.textContent = part.value;
+      }
       var note = el('span', 'text-small text-muted', part.note);
       body.append(value, note);
 
@@ -268,6 +306,7 @@
     clearInputError();
     hide($result);
     show($empty);
+    updateClear();
     $input.focus();
   }
 
@@ -320,6 +359,8 @@
   function checkDemo(index) {
     currentDemo = index;
     markDemoRow();
+    // The field shows what is being checked, so Check re-checks it.
+    $input.value = demoLinks[index];
     runCheck(demoLinks[index]);
     $verdict.focus();
   }
@@ -370,7 +411,10 @@
     event.preventDefault();
     runCheck($input.value);
   });
-  $input.addEventListener('input', clearInputError);
+  $input.addEventListener('input', function () {
+    clearInputError();
+    updateClear();
+  });
   $copyBtn.addEventListener('click', copyResults);
   $clearBtn.addEventListener('click', clearAll);
 
