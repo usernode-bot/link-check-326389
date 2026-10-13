@@ -6,5 +6,26 @@
   "secrets": [],
   "governance": {
     "preset": "you_or_the_group"
-  }
+  },
+  "tests": [
+    {
+      "name": "Main screen",
+      "path": "/",
+      "expectSelector": "#link-input",
+      "expectText": "Paste a link to check it"
+    },
+    {
+      "id": "check.demo",
+      "name": "Demo link checked",
+      "visual": true,
+      "impact": [
+        "public/**",
+        "styles/**",
+        "tailwind.config.js",
+        "server.js"
+      ],
+      "path": "/?demo=1",
+      "expectSelector": "#verdict[data-verdict=\"warning\"]"
+    }
+  ]
 }
