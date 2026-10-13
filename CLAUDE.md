@@ -97,24 +97,33 @@ tables you've marked private), etc.
 
 ## About LINK CHECK
 
-Spot suspicious links before you click
+Spot suspicious links before you click.
 
-_(add a sentence or two more of product context here so Claude Code has a
-shared understanding of what this app is for)_
+LINK CHECK is a client-side teaching tool for the tricks fake links
+use: a familiar name parked in a long subdomain, a site name in front
+of an `@`, a raw IP host, mixed alphabets (a Cyrillic о that looks like
+an o), double extensions like `.pdf.exe`, and another site smuggled
+inside the query. It answers three questions in plain words: where
+does this link really go, what are its parts, and what looks off. The
+verdict never calls a link safe — a link with no warning signs can
+still lead somewhere harmful, and the page says so.
 
 ## Design
 
 This app's look. The first real version fills in the blanks; every later
 change follows it, and updates it when a request changes the look on purpose.
 
-- **Palette:** _(name the accent, any second colour and the neutrals, e.g.
-  "accent: tomato red; second: basil green; neutrals: warm greys")_
-- **Signature element:** _(the one thing on screen drawn from this app's
-  subject, which no other app would have)_
+- **Palette:** accent: ink blue (`#1D4ED8` light / a lighter blue in dark);
+  neutrals: cool greys; plus a traffic-light set for findings — clear green,
+  caution amber, warning red, each with a soft background variant for the
+  verdict banner. All in `styles/tailwind-input.css`.
+- **Signature element:** the link x-ray — the pasted link rendered one
+  labelled part at a time (scheme, subdomain, domain, path, query…), each
+  part underlined in its own colour, the real domain in the accent. Under
+  it, the real site in large type. No other app draws a link this way.
+- **Level shapes:** clear = circle with a tick, caution = triangle,
+  warning = octagon. Built as inline SVG in `public/app.js`; never emoji.
 - **Type scale:** `text-title`, `text-heading`, `text-body`, `text-small`
-  _(change their sizes in `tailwind.config.js` if you must, not their number)_
-- **One fixed look:** _(only for an app drawn as its own scene, such as a
-  game: which look, and why. Otherwise delete this line.)_
 
 The kit is in `styles/tailwind-input.css`: colour tokens with a light and
 a dark value (named in `tailwind.config.js`), and a few components
@@ -139,6 +148,16 @@ Re-theme by changing the token values there, keeping every text pair at
 
 ## App-specific conventions
 
-_(optional — e.g. "all currency values stored as integer cents, not
-floats"; "the `posts` table is append-only"; "avoid adding new
-dependencies"; etc.)_
+- **The link is never fetched, opened, linked or sent; all analysis is in
+  `public/check.js`.** It is a pure module (UMD: `window.LinkCheck` /
+  `module.exports`), with no DOM and no network. The page never turns link
+  text into an `<a>`, an href, or an `innerHTML` fragment — render with
+  `createElement` + `textContent` only (`public/app.js`).
+- The verdict never says "safe". Findings use the three levels
+  clear / caution / warning and plain words.
+- Link text and class-name fragments built at runtime are invisible to the
+  Tailwind extractor: level-dependent classes must be whole literals (the
+  `VERDICT_CLASS` / `LEVEL_TEXT` / `SEG_CLASS` maps in `public/app.js`).
+- Unit tests live in `test/check.test.js` and exercise only the pure
+  analyser. `node --test test/` (bare directory) fails on this Node; the
+  npm script uses the glob form.

@@ -55,6 +55,17 @@ module.exports = {
         danger: token('danger'),
         'on-danger': token('on-danger'),
         focus: token('focus'), // the keyboard focus ring
+        // The traffic-light set for verdicts, findings and x-ray underlines.
+        clear: token('clear'),
+        caution: token('caution'),
+        warning: token('warning'),
+        'clear-soft': token('clear-soft'),
+        'caution-soft': token('caution-soft'),
+        'warning-soft': token('warning-soft'),
+      },
+      fontFamily: {
+        sans: ['system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+        mono: ['ui-monospace', '"SF Mono"', 'Menlo', 'Consolas', 'monospace'],
       },
       // The type scale: four sizes, and nothing in between.
       fontSize: {

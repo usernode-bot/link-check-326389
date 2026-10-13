@@ -147,6 +147,26 @@ app.use((req, res, next) => {
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
+// Staging demo data: eight fixed sample links, one per trick LINK CHECK
+// looks for, plus one clean link to end on. Served only on staging and only
+// when the page asks with ?demo=1 — production and normal visits get an
+// empty list, so the demo banner and its list never appear there.
+const DEMO_LINKS = [
+  'https://northbank.com.account-verify.example/login',
+  'http://192.0.2.44/parcel/redelivery',
+  'https://www.shopfront.example@login-check.test/cart',
+  'https://shopfrоont.example/account',
+  'https://downloads.example/invoice_2291.pdf.exe',
+  'https://sh0pfront-deals.example/sale',
+  'https://maps.example/go?to=https%3A%2F%2Fprize-claim.test',
+  'https://library.example/opening-hours',
+];
+
+app.get('/api/demo', (req, res) => {
+  const links = IS_STAGING && req.query.demo === '1' ? DEMO_LINKS : [];
+  res.json({ links });
+});
+
 // The template ships no favicon file; index.html carries an inline SVG
 // icon instead. Answer 204 here so anything that still probes
 // /favicon.ico (older browsers, direct visits) doesn't fall through to
