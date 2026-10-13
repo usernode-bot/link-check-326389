@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- LINK CHECK mark: two chain links joined by a bold checkmark.
+       Colours: Black #000000 (tile), Cream #FFFEEA (links), Yellow #FFEE6F (check). -->
+  <rect width="1024" height="1024" fill="#000000"/>
+  <!-- Link 1: stadium, stroke-only, rotated -45 (bottom-left to top-right) -->
+  <rect x="-140" y="-95" width="280" height="190" rx="95" fill="none" stroke="#FFFEEA" stroke-width="80"
+        transform="translate(391 391) rotate(-45)"/>
+  <!-- Link 2 -->
+  <rect x="-140" y="-95" width="280" height="190" rx="95" fill="none" stroke="#FFFEEA" stroke-width="80"
+        transform="translate(633 633) rotate(-45)"/>
+  <!-- Knockout: background-colour stroke under the check, cutting a clean 48px gap where it crosses the links -->
+  <polyline points="455,441 583,569 696,455" fill="none" stroke="#000000" stroke-width="206"
+            stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Check: bold yellow polyline over the junction -->
+  <polyline points="455,441 583,569 696,455" fill="none" stroke="#FFEE6F" stroke-width="110"
+            stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
