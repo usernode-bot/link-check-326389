@@ -27,5 +27,9 @@
       "path": "/?demo=1",
       "expectSelector": "#verdict[data-verdict=\"warning\"]"
     }
-  ]
+  ],
+  "visibility": {
+    "build": "public",
+    "view": "public"
+  }
 }
