@@ -1,6 +1,7 @@
 {
   "description": "Spot suspicious links before you click",
   "icon": {
+    "image": "brand/icon.png",
     "emoji": "🔗"
   },
   "secrets": [],
