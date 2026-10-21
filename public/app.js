@@ -60,10 +60,13 @@
   var $findings = byId('findings');
   var $copyBtn = byId('copy-btn');
   var $copyNote = byId('copy-note');
+  var $copyLinkBtn = byId('copy-link-btn');
+  var $copyLinkNote = byId('copy-link-note');
   var $clearBtn = byId('clear-btn');
   var $demoBanner = byId('demo-banner');
   var $demoSection = byId('demo');
   var $demoList = byId('demo-list');
+  var $demoCopyNote = byId('demo-copy-note');
 
   var currentResult = null;
 
@@ -147,6 +150,7 @@
     renderParts(res);
     renderFindings(res);
     hide($copyNote);
+    hide($copyLinkNote);
     updateClear();
 
     // Announce and move attention to the answer.
@@ -276,27 +280,39 @@
     }
   }
 
-  function copyResults() {
-    if (!currentResult) return;
-    var text = resultText(currentResult);
+  /* One copier for every button that copies: the results, the checked link,
+     a demo link. Each note shows beside its own button. */
+  function copyText(text, note, failMessage) {
     var done = false;
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(
-        function () { showCopyNote('Copied.'); },
-        function () { showCopyNote(legacyCopy(text) ? 'Copied.' : 'Couldn’t copy. Select the results and copy yourself.'); }
+        function () { showCopyNote(note, 'Copied.'); },
+        function () { showCopyNote(note, legacyCopy(text) ? 'Copied.' : failMessage); }
       );
       return;
     }
     try { done = legacyCopy(text); } catch (err) { done = false; }
-    showCopyNote(done ? 'Copied.' : 'Couldn’t copy. Select the results and copy yourself.');
+    showCopyNote(note, done ? 'Copied.' : failMessage);
   }
 
-  var copyTimer = null;
-  function showCopyNote(message) {
-    $copyNote.textContent = message;
-    show($copyNote);
-    if (copyTimer) clearTimeout(copyTimer);
-    copyTimer = setTimeout(function () { hide($copyNote); }, 2000);
+  function copyResults() {
+    if (!currentResult) return;
+    copyText(resultText(currentResult), $copyNote, 'Couldn’t copy. Select the results and copy yourself.');
+  }
+
+  /* The link as checked: the same text the x-ray is drawn from, never href
+     (which may have https:// added) and never the field (which may have been
+     edited since the check). */
+  function copyLink() {
+    if (!currentResult) return;
+    copyText(currentResult.input, $copyLinkNote, 'Couldn’t copy. Select the link and copy it yourself.');
+  }
+
+  function showCopyNote(note, message) {
+    note.textContent = message;
+    show(note);
+    if (note._timer) clearTimeout(note._timer);
+    note._timer = setTimeout(function () { hide(note); }, 2000);
   }
 
   /* ── Clear: back to the start. ── */
@@ -331,13 +347,22 @@
   }
 
   function demoRow(link, index) {
-    var row = el('li', 'list-row p-0');
-    var tap = el('button', 'flex min-h-11 w-full items-center gap-2 px-4 py-3 text-left');
+    var row = el('li', 'list-row items-stretch gap-0 p-0');
+    var tap = el('button', 'flex min-h-11 min-w-0 flex-1 items-center gap-2 px-4 py-3 text-left');
     var label = el('span', 'min-w-0 flex-1 truncate font-mono text-small text-fg', link);
     var go = el('span', 'shrink-0 text-small text-accent', 'Check');
     tap.append(label, go);
     tap.addEventListener('click', function () { checkDemo(index); });
-    row.append(tap);
+
+    // Copy this one demo link, without checking it.
+    var copy = el('button', 'flex min-h-11 shrink-0 items-center border-l border-line px-4 text-small text-accent', 'Copy');
+    copy.type = 'button';
+    copy.setAttribute('aria-label', 'Copy link');
+    copy.addEventListener('click', function () {
+      copyText(link, $demoCopyNote, 'Couldn’t copy. Select the link and copy it yourself.');
+    });
+
+    row.append(tap, copy);
     return row;
   }
 
@@ -347,10 +372,10 @@
       var tap = rows[i].firstChild;
       if (!tap || tap.tagName !== 'BUTTON') continue;
       if (i === currentDemo) {
-        tap.className = 'flex min-h-11 w-full items-center gap-2 bg-raised px-4 py-3 text-left';
+        tap.className = 'flex min-h-11 min-w-0 flex-1 items-center gap-2 bg-raised px-4 py-3 text-left';
         tap.setAttribute('aria-current', 'true');
       } else {
-        tap.className = 'flex min-h-11 w-full items-center gap-2 px-4 py-3 text-left';
+        tap.className = 'flex min-h-11 min-w-0 flex-1 items-center gap-2 px-4 py-3 text-left';
         tap.removeAttribute('aria-current');
       }
     }
@@ -367,6 +392,7 @@
 
   function showDemoError() {
     $demoList.replaceChildren();
+    hide($demoCopyNote);
     var row = el('li', 'state-error');
     row.append(el('p', 'text-body font-medium', 'The demo links didn’t load'));
     row.append(el('p', 'text-small text-muted',
@@ -380,6 +406,7 @@
 
   function showDemoSkeleton() {
     $demoList.replaceChildren();
+    hide($demoCopyNote);
     for (var i = 0; i < 4; i++) {
       var row = el('li', 'list-row');
       var bar = el('span', 'skeleton h-5 w-full');
@@ -416,6 +443,7 @@
     updateClear();
   });
   $copyBtn.addEventListener('click', copyResults);
+  $copyLinkBtn.addEventListener('click', copyLink);
   $clearBtn.addEventListener('click', clearAll);
 
   if (pageParams().demo === '1') loadDemo();

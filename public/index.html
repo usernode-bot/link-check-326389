@@ -163,6 +163,10 @@
         <h2 class="section-label">Where it really goes</h2>
         <p id="dest" class="font-mono text-heading text-accent" style="overflow-wrap: anywhere;"></p>
         <p id="xray" class="link-text" aria-label="The link, shown part by part"></p>
+        <div class="flex flex-wrap items-center gap-3">
+          <button id="copy-link-btn" type="button" class="btn-secondary">Copy link</button>
+          <p id="copy-link-note" hidden class="text-small text-muted" role="status"></p>
+        </div>
       </section>
 
       <section class="flex flex-col gap-2">
@@ -188,6 +192,7 @@
     <section id="demo" hidden class="flex flex-col gap-2">
       <h2 class="section-label">Demo links</h2>
       <ul id="demo-list" class="list"></ul>
+      <p id="demo-copy-note" hidden class="text-small text-muted" role="status"></p>
     </section>
 
   </main>

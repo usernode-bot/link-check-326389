@@ -26,6 +26,13 @@ test('mailto: is named as unsupported', () => {
   assert.equal(r.scheme, 'mailto');
 });
 
+/* ── input: the link as written, which is what "Copy link" copies. ── */
+test('input is the link as written, minus wrapping and trailing punctuation', () => {
+  assert.equal(analyze(' "https://a.example/x?q=1" ').input, 'https://a.example/x?q=1');
+  assert.equal(analyze('https://a.example/x?q=1.').input, 'https://a.example/x?q=1');
+  assert.equal(analyze('a.example/x').input, 'a.example/x');
+});
+
 /* ── A scheme typed without // ── */
 test('https typed without // still checks', () => {
   const r = analyze('https:example.com/shop');
